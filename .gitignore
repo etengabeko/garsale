@@ -3,3 +3,4 @@ Makefile
 .o
 .ui
 .moc
+*.swp
