@@ -4,3 +4,6 @@ Makefile
 .ui
 .moc
 *.swp
+*.user
+build_dir
+
