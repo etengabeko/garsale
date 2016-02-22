@@ -1,7 +1,8 @@
 #ifndef GARSALE_UI_SELLERWIDGET_H
 #define GARSALE_UI_SELLERWIDGET_H
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
+#include <QStandardItemModel>
 
 namespace Ui {
   class SellerWidget;
@@ -18,9 +19,15 @@ public:
   ~SellerWidget();
 
 private slots:
+  void slotOpenFiles();
+  void slotClose();
+  void slotApply();
 
 private:
   Ui::SellerWidget* ui_;
+
+  QStandardItemModel filesModel_;
+  QStandardItemModel sellersModel_;
 
 };
 

@@ -1,13 +1,13 @@
-#include <QtWidgets/QApplication>
+#include <QApplication>
 #include <QDebug>
 #include <QString>
 #include <QStringList>
 
-#include <sellerparser/sellerimporter.h>
-#include <ui/sellerwidget/sellerwidget.h>
+#include "sellerparser/sellerimporter.h"
+#include "ui/sellerwidget/sellerwidget.h"
 
 namespace {
-  const QString noGuiArg() { return "--gui"; }
+  const QString noGuiArg() { return "--no-gui"; }
 
   const QStringList parseArguments(int argc, char* argv[])
   {
@@ -24,7 +24,7 @@ using namespace garsale;
 int main(int argc, char* argv[])
 {
   bool nogui = ::parseArguments(argc, argv).contains(::noGuiArg());
-  QCoreApplication* app = 0;
+  QCoreApplication* app = nullptr;
   if (nogui == true) {
     app = new QCoreApplication(argc, argv);
   }
@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
 
   int result = -1;
   if (nogui == false) {
-    SellerWidget* wgt = new SellerWidget();
-    wgt->show();
+    SellerWidget wgt;
+    wgt.show();
     result = app->exec();
   }
   else {
