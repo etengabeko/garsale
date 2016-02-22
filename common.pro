@@ -1,4 +1,4 @@
-PRO_PATH = $$(GARSALE)
+PRO_PATH = $$_PRO_FILE_PWD_
 BUILD_DIR = $$PRO_PATH/build_dir
 
 INCLUDEPATH += $$PRO_PATH
@@ -19,18 +19,26 @@ contains(TEMPLATE, app) {
   }
 }
 
-contains(QT, core) {
-  MOC_DIR = ./.moc
-  RCC_DIR = ./.rcc
-}
-contains(QT, gui) {
-  UI_DIR = ./.ui
-  INCLUDEPATH += ./.ui
+contains(CONFIG, qt) {
+  contains(QT, core) {
+    MOC_DIR = ./.moc
+    RCC_DIR = ./.rcc
+  }
+  contains(QT, gui) {
+    QT += widgets
+    UI_DIR = ./.ui
+    INCLUDEPATH += ./.ui
+  }
 }
 
 CONFIG += debug    \
-          console  \
           warn_on
+
+win32,
+win64 {
+  CONFIG += console
+  CONFIG -= debug_and_release
+}
 
 QMAKE_CXXFLAGS += -Werror      \
                   -Wall        \
