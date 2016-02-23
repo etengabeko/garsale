@@ -45,6 +45,7 @@ private:
   void makeSellersHeader();
   const QList<SellerGoods> loadFromFiles() const;
   const QList<QStandardItem*> sellerGoodsToRowItems(const SellerGoods& sgoods) const;
+  const SellerGoods rowItemsToSellerGoods(int rowNumber) const;
 
 private:
   Ui::SellerWidget* ui_;

@@ -4,6 +4,7 @@
 #include "sellerparser/sellergoods.h"
 #include "sellerparser/sellerimporter.h"
 
+#include <QDateTime>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QList>
@@ -124,7 +125,87 @@ const QList<QStandardItem*> SellerWidget::sellerGoodsToRowItems(const SellerGood
 
 void SellerWidget::slotSave()
 {
-  // TODO
+  ui_->errorTextEdit->setPlainText(ui_->errorTextEdit->toPlainText()
+                                   + "\n" + QDateTime::currentDateTime().toString("hh:mm:ss dd.MM.yyyy")
+                                   + " " + tr("Start saving:")
+                                   + "\n");
+  QString result;
+  for (int i = 0, sz = sellersModel_.rowCount(); i < sz; ++i) {
+    bool ok = SellerImporter::saveSellerGoods(rowItemsToSellerGoods(i));
+    QString fileName = filesModel_.item(i) != nullptr ? filesModel_.item(i)->text() : tr("Unknown error: filename not found");
+    result += tr(QString("Load %1 [ %2 ]\n")
+                 .arg(fileName)
+                 .arg((ok ? tr("True") : tr("False")))
+                 .toStdString().c_str());
+  }
+
+  ui_->errorTextEdit->setPlainText(ui_->errorTextEdit->toPlainText()
+                                   + "\n" + result
+                                   + "\n" + QDateTime::currentDateTime().toString("hh:mm:ss dd.MM.yyyy")
+                                   + " " + tr("Finish saving")
+                                   + "\n");
+}
+
+const SellerGoods SellerWidget::rowItemsToSellerGoods(int rowNumber) const
+{
+  SellerGoods result;
+  QStandardItem* idItem = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::ID_OR_LABEL));
+  if (idItem != nullptr) {
+    result.id = idItem->text();
+  }
+  QStandardItem* item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::NICKNAME_OR_SIZE));
+  if (item != nullptr) {
+    result.nickname = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::NAME_OR_PRICE));
+  if (item != nullptr) {
+    result.name = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::PHONE_OR_BARCODE));
+  if (item != nullptr) {
+    result.phone = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::EMAIL));
+  if (item != nullptr) {
+    result.email = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::PAYMENT_KIND));
+  if (item != nullptr) {
+    result.payment_kind = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::PAYMENT_TO));
+  if (item != nullptr) {
+    result.payment_to = item->text();
+  }
+  item = sellersModel_.item(rowNumber, static_cast<int>(SellersHeaderColumns::INSPECTOR_CODE));
+  if (item != nullptr) {
+    result.inspector_code = item->text();
+  }
+
+  for (int i = 0, sz = sellersModel_.rowCount(idItem->index()); i < sz; ++i) {
+    Good g;
+    QStandardItem* gitem = idItem->child(i, static_cast<int>(SellersHeaderColumns::ID_OR_LABEL));
+    if (gitem != nullptr) {
+      g.label = gitem->text();
+    }
+    gitem = idItem->child(i, static_cast<int>(SellersHeaderColumns::NICKNAME_OR_SIZE));
+    if (gitem != nullptr) {
+      g.size = gitem->text();
+    }
+    gitem = idItem->child(i, static_cast<int>(SellersHeaderColumns::NAME_OR_PRICE));
+    if (gitem != nullptr) {
+      g.price = gitem->text();
+    }
+    gitem = idItem->child(i, static_cast<int>(SellersHeaderColumns::PHONE_OR_BARCODE));
+    if (gitem != nullptr) {
+      g.barcode = gitem->text();
+    }
+    if (g.isValid() == true) {
+      result.goods.append(g);
+    }
+  }
+
+  return result;
 }
 
 } // garsale
