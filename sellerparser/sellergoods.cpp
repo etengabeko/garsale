@@ -1,5 +1,6 @@
 #include "sellergoods.h"
 
+#include <QObject>
 #include <QTextStream>
 
 namespace garsale {
@@ -27,14 +28,15 @@ bool Good::isEmpty() const
 
 QTextStream& operator<< (QTextStream& stream, const SellerGoods& sgoods)
 {
-  stream << sgoods.nickname << "\n"
-         << sgoods.name << "\n"
-         << sgoods.phone << "\n"
-         << sgoods.email << "\n"
-         << sgoods.payment_kind << "\n"
-         << sgoods.payment_to << "\n"
-         << sgoods.inspector_code << "\n"
-         << sgoods.id << "\n";
+  stream << QObject::tr("Nickname: ") << sgoods.nickname << "\n"
+         << QObject::tr("Name: ") << sgoods.name << "\n"
+         << QObject::tr("Phone: ") << sgoods.phone << "\n"
+         << QObject::tr("Email: ") << sgoods.email << "\n"
+         << QObject::tr("Payment kind: ") << sgoods.payment_kind << "\n"
+         << QObject::tr("Payment to: ") << sgoods.payment_to << "\n"
+         << QObject::tr("Inspector code: ") << sgoods.inspector_code << "\n"
+         << QObject::tr("ID: ") << sgoods.id << "\n"
+         << QObject::tr("Goods:") << "\n";
   int i = 0;
   for (auto it = sgoods.goods.begin(), end = sgoods.goods.end(); it != end; ++it) {
     stream << ++i << "\t";

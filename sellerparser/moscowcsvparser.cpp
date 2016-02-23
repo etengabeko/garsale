@@ -3,6 +3,7 @@
 
 #include <QByteArray>
 #include <QDebug>
+#include <QObject>
 #include <QStringList>
 
 namespace {
@@ -26,9 +27,10 @@ const SellerGoods MoscowCsvParser::parse(const QByteArray& content)
 {
   QStringList contentList(QString(content).split("\n"));
   if (contentList.size() < ::sellerStringsCount()) {
-    qDebug() << QString::fromUtf8("Количество строк меньше требуемого: %1 из %2")
-                .arg(contentList.size())
-                .arg(::sellerStringsCount());
+    qDebug() << QObject::tr(QString("Row count less than needed: %1 from %2")
+                            .arg(contentList.size())
+                            .arg(::sellerStringsCount())
+                            .toStdString().c_str());
     return SellerGoods();
   }
   
@@ -42,8 +44,8 @@ const SellerGoods MoscowCsvParser::parse(const QByteArray& content)
   sg.payment_to = splitOneField(contentList.at(14), 1);
   sg.inspector_code = splitOneField(contentList.at(19), 2);
 
-  QStringList::iterator firstRemoved = contentList.begin();
-  QStringList::iterator lastRemoved = firstRemoved + ::sellerStringsCount()-1;
+  auto firstRemoved = contentList.begin();
+  auto lastRemoved = firstRemoved + ::sellerStringsCount()-1;
   contentList.erase(firstRemoved, lastRemoved);
   sg.goods = parseGoods(contentList);
  
@@ -53,18 +55,19 @@ const SellerGoods MoscowCsvParser::parse(const QByteArray& content)
 const QList<Good> MoscowCsvParser::parseGoods(const QStringList& goodsList) const
 {
  QList<Good> result;
- foreach(const QString& entry, goodsList) {
-   Good each(parseOneGood(entry));
+ foreach(auto entry, goodsList) {
+   auto each(parseOneGood(entry));
    if (each.isValid() == true) {
      result.append(each);
    }
    else {
      if (each.isEmpty() == false) {
-       qDebug() << QString::fromUtf8("Заполнены не все поля товара:\n\tназвание %1\n\tразмер %2\n\tцена %3\n\tштрих-код %4")
-                   .arg(each.label)
-                   .arg(each.size)
-                   .arg(each.price)
-                   .arg(each.barcode);
+       qDebug() << QObject::tr(QString("Good has empty fields:\n\tname %1\n\tsize %2\n\tcount %3\n\tbarcode %4")
+                               .arg(each.label)
+                               .arg(each.size)
+                               .arg(each.price)
+                               .arg(each.barcode)
+                               .toStdString().c_str());
      }
    }
  }
@@ -89,9 +92,10 @@ const Good MoscowCsvParser::parseOneGood(const QString& str) const
 const QString MoscowCsvParser::splitOneField(const QStringList& strlist, int fieldnum) const
 {
   if (strlist.size() < fieldnum) {
-    qDebug() << QString::fromUtf8("Искомое поле (%1) не найдено в: %2")
-                .arg(fieldnum)
-                .arg(strlist.join(fieldSeparator()));
+    qDebug() << QObject::tr(QString("Filed %1 not found in: %2")
+                            .arg(fieldnum)
+                            .arg(strlist.join(fieldSeparator()))
+                            .toStdString().c_str());
     return QString::null;
   }
   return strlist.at(fieldnum-1);

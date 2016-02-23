@@ -48,14 +48,16 @@ int main(int argc, char* argv[])
     result = app->exec();
   }
   else {
-    SellerImporter slr;
     bool ok = false;
     if (inputFileName.isEmpty() == false) {
-      ok = slr.importFromFile(inputFileName);
-      qDebug() << QString::fromUtf8("Загрузка из файла %1 [%2]").arg(inputFileName).arg((ok ? "True" : "False"));
+      ok = SellerImporter::importFromFile(inputFileName);
+      qDebug() << QObject::tr(QString("Load from file %1 [%2]")
+                              .arg(inputFileName)
+                              .arg((ok ? "True" : "False"))
+                              .toStdString().c_str());
     }
     else {
-      qDebug() << QString::fromUtf8("Ошибка загрузки: не указано имя файла");
+      qDebug() << QObject::tr(QString("Error load: empty filename").toStdString().c_str());
     }
     result = ok ? EXIT_SUCCESS : EXIT_FAILURE;
   }

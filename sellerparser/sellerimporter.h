@@ -5,12 +5,14 @@ class QString;
 
 namespace garsale {
 
+class SellerGoods;
+
 class SellerImporter
 {
   public:
-    SellerImporter();
-    
-    bool importFromFile(const QString& filename);
+    static bool importFromFile(const QString& fileName);
+    static const SellerGoods loadFromFile(const QString& fileName);
+    static bool saveSellerGoods(const SellerGoods& sgoods);
 
 };
 
