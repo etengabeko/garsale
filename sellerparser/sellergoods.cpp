@@ -7,23 +7,23 @@ namespace garsale {
 
 bool Good::isValid() const
 {
-  bool notValid = label.isEmpty() ||
-                  size.isEmpty() ||
-                  price.isEmpty() ||
-//                  discount.isEmpty() ||
-//                  charity.isEmpty() ||
-                  barcode.isEmpty();
+  bool notValid = label.trimmed().isEmpty() ||
+                  size.trimmed().isEmpty() ||
+                  price.trimmed().isEmpty() ||
+//                  discount.trimmed().isEmpty() ||
+//                  charity.trimmed().isEmpty() ||
+                  barcode.trimmed().isEmpty();
   return !notValid;
 }
 
 bool Good::isEmpty() const
 {
-  return label.isEmpty() &&
-         size.isEmpty() &&
-         price.isEmpty() &&
-//         discount.isEmpty() &&
-//         charity.isEmpty() &&
-         barcode.isEmpty();
+  return label.trimmed().isEmpty() &&
+         size.trimmed().isEmpty() &&
+         price.trimmed().isEmpty() &&
+//         discount.trimmed().isEmpty() &&
+//         charity.trimmed().isEmpty() &&
+         barcode.trimmed().isEmpty();
 }
 
 QTextStream& operator<< (QTextStream& stream, const SellerGoods& sgoods)
