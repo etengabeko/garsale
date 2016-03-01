@@ -1,8 +1,9 @@
 #ifndef GARSALE_SELLERPARSER_ABSTRACTPARSER_H
 #define GARSALE_SELLERPARSER_ABSTRACTPARSER_H
 
+#include <memory>
+
 class QByteArray;
-template <typename T> class QSharedPointer;
 
 namespace garsale {
 
@@ -11,15 +12,21 @@ class SellerGoods;
 class AbstractParser
 {
 public:
-  enum Type {
+  enum class Type {
     CSV = 0
   };
 
 public:
-  AbstractParser();
-  virtual ~AbstractParser();
+  AbstractParser() = default;
+  virtual ~AbstractParser() = default;
 
-  static QSharedPointer<AbstractParser> factory(Type type);
+  AbstractParser(AbstractParser&& other) = default;
+  AbstractParser& operator= (AbstractParser&& other) = default;
+
+  AbstractParser(const AbstractParser& other) = default;
+  AbstractParser& operator= (const AbstractParser& other) = default;
+
+  static std::unique_ptr<AbstractParser> makeParser(Type type);
   
   virtual const SellerGoods parse(const QByteArray& content) = 0;
 

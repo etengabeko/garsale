@@ -7,8 +7,9 @@
 #include <QDebug>
 #include <QFile>
 #include <QObject>
-#include <QSharedPointer>
 #include <QString>
+
+#include <memory>
 
 namespace garsale {
 
@@ -21,8 +22,8 @@ const SellerGoods SellerImporter::loadFromFile(const QString& fileName)
 {
   QFile input(fileName);
   if (input.open(QIODevice::ReadOnly) == true) {
-    QSharedPointer<AbstractParser> parser(AbstractParser::factory(AbstractParser::CSV));
-    if (parser.isNull() == false) {
+    auto parser = AbstractParser::makeParser(AbstractParser::Type::CSV);
+    if (parser != nullptr) {
       return parser->parse(input.readAll());
     }
   }
@@ -36,8 +37,8 @@ const SellerGoods SellerImporter::loadFromFile(const QString& fileName)
 
 bool SellerImporter::saveSellerGoods(const SellerGoods& sgoods)
 {
-  QSharedPointer<AbstractSaver> saver(AbstractSaver::factory(AbstractSaver::DUMMY));
-  return saver.isNull() == false ? saver->save(sgoods) : false;
+  auto saver = AbstractSaver::makeSaver(AbstractSaver::Type::DUMMY);
+  return saver != nullptr ? saver->save(sgoods) : false;
 }
 
 } // garsale

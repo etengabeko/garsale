@@ -1,27 +1,21 @@
 #include "abstractsaver.h"
 #include "dummysaver.h"
-
-#include <QSharedPointer>
+#include "firebirdsaver.h"
 
 namespace garsale {
 
-AbstractSaver::AbstractSaver()
+std::unique_ptr<AbstractSaver> AbstractSaver::makeSaver(Type type)
 {
-}
-
-AbstractSaver::~AbstractSaver()
-{
-}
-
-QSharedPointer<AbstractSaver> AbstractSaver::factory(Type type)
-{
+  std::unique_ptr<AbstractSaver> result(nullptr);
   switch (type) {
-    case DUMMY:
-      return QSharedPointer<AbstractSaver>(new DummySaver());
+    case Type::DUMMY:
+      result.reset(new DummySaver());
+    case Type::FIREBIRD:
+      result.reset(new FirebirdSaver());
     default:
       break;
   }
-  return QSharedPointer<AbstractSaver>();
+  return result;
 }
 
 } // garsale

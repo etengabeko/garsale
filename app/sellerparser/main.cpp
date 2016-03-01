@@ -3,6 +3,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <memory>
+
 #include "sellerparser/sellerimporter.h"
 #include "ui/sellerwidget/sellerwidget.h"
 
@@ -24,12 +26,12 @@ using namespace garsale;
 int main(int argc, char* argv[])
 {
   bool nogui = ::parseArguments(argc, argv).contains(::noGuiArg());
-  QCoreApplication* app = nullptr;
+  std::unique_ptr<QCoreApplication> app(nullptr);
   if (nogui == true) {
-    app = new QCoreApplication(argc, argv);
+    app.reset(new QCoreApplication(argc, argv));
   }
   else {
-    app = new QApplication(argc, argv);
+    app.reset(new QApplication(argc, argv));
   }
 
   QString inputFileName;
@@ -61,8 +63,6 @@ int main(int argc, char* argv[])
     }
     result = ok ? EXIT_SUCCESS : EXIT_FAILURE;
   }
-
-  delete app;
 
   return result;
 }

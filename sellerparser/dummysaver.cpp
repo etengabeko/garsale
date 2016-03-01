@@ -13,11 +13,6 @@ namespace {
 
 namespace garsale {
 
-DummySaver::DummySaver() :
-  AbstractSaver()
-{
-}
-
 bool DummySaver::save(const SellerGoods& sgoods)
 {
   QFile output(getOutputFileName(sgoods.name));

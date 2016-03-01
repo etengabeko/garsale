@@ -9,6 +9,7 @@ HEADERS += \
            sellerparser/abstractparser.h    \
            sellerparser/abstractsaver.h     \
            sellerparser/dummysaver.h        \
+           sellerparser/firebirdsaver.h     \
            sellerparser/moscowcsvparser.h   \
            sellerparser/sellergoods.h       \
            sellerparser/sellerimporter.h    \
@@ -18,6 +19,7 @@ SOURCES += \
            sellerparser/abstractparser.cpp  \
            sellerparser/abstractsaver.cpp   \
            sellerparser/dummysaver.cpp      \
+           sellerparser/firebirdsaver.cpp   \
            sellerparser/moscowcsvparser.cpp \
            sellerparser/sellergoods.cpp     \
            sellerparser/sellerimporter.cpp  \

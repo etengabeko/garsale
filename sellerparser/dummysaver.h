@@ -11,17 +11,13 @@ class SellerGoods;
 
 class DummySaver : public AbstractSaver
 {
-private:
-  DummySaver();
-
 public:
+  DummySaver() = default;
+
   bool save(const SellerGoods& sgoods) override;
 
 private:
   const QString getOutputFileName(QString sellerName) const;
-
-private:
-  friend class AbstractSaver;
 
 };
 

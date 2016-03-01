@@ -9,10 +9,12 @@ class SellerGoods;
 
 class SellerImporter
 {
-  public:
-    static bool importFromFile(const QString& fileName);
-    static const SellerGoods loadFromFile(const QString& fileName);
-    static bool saveSellerGoods(const SellerGoods& sgoods);
+public:
+  SellerImporter() = delete;
+
+  static bool importFromFile(const QString& fileName);
+  static const SellerGoods loadFromFile(const QString& fileName);
+  static bool saveSellerGoods(const SellerGoods& sgoods);
 
 };
 

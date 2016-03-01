@@ -1,27 +1,18 @@
 #include "abstractparser.h"
 #include "moscowcsvparser.h"
 
-#include <QSharedPointer>
-
 namespace garsale {
 
-AbstractParser::AbstractParser()
+std::unique_ptr<AbstractParser> AbstractParser::makeParser(Type type)
 {
-}
-
-AbstractParser::~AbstractParser()
-{
-}
-
-QSharedPointer<AbstractParser> AbstractParser::factory(Type type)
-{
+  std::unique_ptr<AbstractParser> result(nullptr);
   switch (type) {
-    case CSV:
-      return QSharedPointer<AbstractParser>(new MoscowCsvParser());
+    case Type::CSV:
+      result.reset(new MoscowCsvParser());
     default:
       break;
   }
-  return QSharedPointer<AbstractParser>();
+  return result;
 }
 
 } // garsale

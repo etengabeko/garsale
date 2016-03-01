@@ -1,7 +1,7 @@
 #ifndef GARSALE_SELLERPARSER_ABSTRACTSAVER_H
 #define GARSALE_SELLERPARSER_ABSTRACTSAVER_H
 
-template <typename T> class QSharedPointer;
+#include <memory>
 
 namespace garsale {
 
@@ -10,15 +10,22 @@ class SellerGoods;
 class AbstractSaver
 {
 public:
-  enum Type {
-    DUMMY = 0
+  enum class Type {
+    DUMMY = 0,
+    FIREBIRD
   };
 
 public:
-  AbstractSaver();
-  virtual ~AbstractSaver();
+  AbstractSaver() = default;
+  virtual ~AbstractSaver() = default;
 
-  static QSharedPointer<AbstractSaver> factory(Type type);
+  AbstractSaver(AbstractSaver&& other) = default;
+  AbstractSaver& operator= (AbstractSaver&& other) = default;
+
+  AbstractSaver(const AbstractSaver& other) = default;
+  AbstractSaver& operator= (const AbstractSaver& other) = default;
+
+  static std::unique_ptr<AbstractSaver> makeSaver(Type type);
   
   virtual bool save(const SellerGoods& sgoods) = 0;
 
