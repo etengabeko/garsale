@@ -1,35 +1,24 @@
 #include "sqlsaver.h"
 
 #include "sellergoods.h"
+#include "settings/dbsettings.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QList>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
-#include <QStringList>
-
-namespace {
-
-// TODO settings
-const QString databaseType() { return QString("QIBASE"); }
-const QString databaseHost() { return QString("localhost"); }
-const QString databaseName() { return QString("%1/tmp/OPSURT_DB_2.0.7.FDB").arg(QDir::homePath()); }
-const QString databaseUser() { return QString("SYSDBA"); }
-const QString databasePassword() { return QString("masterkey"); }
-
-}
 
 namespace garsale {
 
 bool SqlSaver::save(const SellerGoods& sgoods)
 {
   qDebug() << QSqlDatabase::drivers();
-  return false;
+//  return false; TODO
   QSqlDatabase db = connectToDb();
-  if (db.isOpen() == true) {
+  if (db.isValid() == true &&
+      db.isOpen() == true) {
     // TODO check exists
     QList<QSqlQuery> queries = makeQueries(db, sgoods);
     bool ok = false;
@@ -69,11 +58,18 @@ bool SqlSaver::save(const SellerGoods& sgoods)
 
 QSqlDatabase SqlSaver::connectToDb() const
 {
-  QSqlDatabase db = QSqlDatabase::addDatabase(::databaseType());
-  db.setHostName(::databaseHost());
-  db.setDatabaseName(::databaseName());
-  db.setUserName(::databaseUser());
-  db.setPassword(::databasePassword());
+  DbSettings settings;
+  if (settings.isNull() == true) {
+    qDebug() << QObject::tr(QString("DB settings not found in %1").arg(settings.fileName())
+                            .toStdString().c_str());
+    return QSqlDatabase();
+  }
+
+  QSqlDatabase db = QSqlDatabase::addDatabase(settings.type());
+  db.setHostName(settings.host());
+  db.setDatabaseName(settings.name());
+  db.setUserName(settings.user());
+  db.setPassword(settings.password());
 
   if (db.open() == false) {
     qDebug() << QObject::tr(QString("Connecttion failed: %1").arg(db.lastError().text())
