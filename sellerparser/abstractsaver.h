@@ -12,7 +12,7 @@ class AbstractSaver
 public:
   enum class Type {
     DUMMY = 0,
-    FIREBIRD
+    SQL
   };
 
 public:
