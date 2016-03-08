@@ -3,6 +3,8 @@
 
 #include <memory>
 
+class QSqlDatabase;
+
 namespace garsale {
 
 class SellerGoods;
@@ -12,7 +14,7 @@ class AbstractSaver
 public:
   enum class Type {
     DUMMY = 0,
-    SQL
+    FDB
   };
 
 public:
@@ -30,6 +32,8 @@ public:
   virtual bool save(const SellerGoods& sgoods) = 0;
 
 };
+
+QSqlDatabase connectToDb();
 
 } // garsale
 

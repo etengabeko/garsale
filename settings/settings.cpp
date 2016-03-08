@@ -2,7 +2,6 @@
 
 #include <QDir>
 #include <QSettings>
-#include <QString>
 #include <QStringList>
 
 namespace {
@@ -33,6 +32,20 @@ QString Settings::fileName() const
 QStringList Settings::childGroups() const
 {
   return settings_->childGroups();
+}
+
+QStringList Settings::childKeys(const QString& groupName) const
+{
+  QStringList result;
+  if (groupName.isEmpty() == true) {
+    result = settings_->childKeys();
+  }
+  else {
+    settings_->beginGroup(groupName);
+    result = settings_->childKeys();
+    settings_->endGroup();
+  }
+  return result;
 }
 
 void Settings::setValue(const QString& key, const QVariant& value)

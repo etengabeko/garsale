@@ -2,11 +2,11 @@
 #define GARSALE_SETTINGS_SETTINGS_H
 
 #include <QVariant>
+#include <QString>
 
 #include <memory>
 
 class QSettings;
-class QString;
 class QStringList;
 
 namespace garsale
@@ -23,6 +23,7 @@ public:
   bool contains(const QString& key) const;
   QString fileName() const;
   QStringList childGroups() const;
+  QStringList childKeys(const QString& groupName = QString::null) const;
 
 protected:
   void setValue(const QString& key, const QVariant& value);

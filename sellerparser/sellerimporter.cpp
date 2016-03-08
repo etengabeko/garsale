@@ -37,7 +37,7 @@ const SellerGoods SellerImporter::loadFromFile(const QString& fileName)
 
 bool SellerImporter::saveSellerGoods(const SellerGoods& sgoods)
 {
-  auto saver = AbstractSaver::makeSaver(AbstractSaver::Type::SQL);
+  auto saver = AbstractSaver::makeSaver(AbstractSaver::Type::FDB);
   return saver != nullptr ? saver->save(sgoods) : false;
 }
 

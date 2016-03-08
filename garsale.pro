@@ -11,11 +11,12 @@ HEADERS += \
            sellerparser/abstractparser.h    \
            sellerparser/abstractsaver.h     \
            sellerparser/dummysaver.h        \
+           sellerparser/fdbsaver.h          \
            sellerparser/moscowcsvparser.h   \
            sellerparser/sellergoods.h       \
            sellerparser/sellerimporter.h    \
-           sellerparser/sqlsaver.h          \
            settings/dbsettings.h            \
+           settings/fdbquerysettings.h      \
            settings/settings.h              \
            ui/sellerwidget/sellerwidget.h
 
@@ -23,11 +24,12 @@ SOURCES += \
            sellerparser/abstractparser.cpp  \
            sellerparser/abstractsaver.cpp   \
            sellerparser/dummysaver.cpp      \
+           sellerparser/fdbsaver.cpp        \
            sellerparser/moscowcsvparser.cpp \
            sellerparser/sellergoods.cpp     \
            sellerparser/sellerimporter.cpp  \
-           sellerparser/sqlsaver.cpp        \
            settings/dbsettings.cpp          \
+           settings/fdbquerysettings.cpp    \
            settings/settings.cpp            \
            ui/sellerwidget/sellerwidget.cpp \
            app/sellerparser/main.cpp
