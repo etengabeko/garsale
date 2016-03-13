@@ -34,7 +34,7 @@ QString FirebirdQuerySettings::selectSellerQuery() const
 
 QString FirebirdQuerySettings::selectGoodsQuery() const
 {
-  return query(selectGoodsKey());
+  return query(selectGoodKey());
 }
 
 QString FirebirdQuerySettings::insertSellerQuery() const
@@ -67,7 +67,7 @@ QString FirebirdQuerySettings::selectSellerKey()
   return QString("%1/%2").arg(::fdbQueriesKey()).arg("select_seller");
 }
 
-QString FirebirdQuerySettings::selectGoodsKey()
+QString FirebirdQuerySettings::selectGoodKey()
 {
   return QString("%1/%2").arg(::fdbQueriesKey()).arg("select_goods");
 }

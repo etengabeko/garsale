@@ -28,7 +28,7 @@ public:
   QString insertStoreQuery() const;
 
   static QString selectSellerKey();
-  static QString selectGoodsKey();
+  static QString selectGoodKey();
   static QString insertSellerKey();
   static QString insertDocumentKey();
   static QString insertGoodKey();
