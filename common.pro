@@ -34,8 +34,7 @@ contains(CONFIG, qt) {
 CONFIG += debug    \
           warn_on
 
-win32,
-win64 {
+win32 {
   CONFIG += console
   CONFIG -= debug_and_release
 }
