@@ -18,6 +18,12 @@ public:
 
   QString query(const QString& key) const;
 
+  QString selectMaxSellerIdQuery() const;
+  QString selectMaxDocumentIdQuery() const;
+  QString selectMaxGoodIdQuery() const;
+  QString selectMaxDocContentIdQuery() const;
+  QString selectMaxStoreIdQuery() const;
+
   QString selectSellerQuery() const;
   QString selectGoodsQuery() const;
 
@@ -26,6 +32,12 @@ public:
   QString insertGoodQuery() const;
   QString insertDocContentQuery() const;
   QString insertStoreQuery() const;
+
+  static QString selectMaxSellerIdKey();
+  static QString selectMaxDocumentIdKey();
+  static QString selectMaxGoodIdKey();
+  static QString selectMaxDocContentIdKey();
+  static QString selectMaxStoreIdKey();
 
   static QString selectSellerKey();
   static QString selectGoodKey();

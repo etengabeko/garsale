@@ -8,6 +8,10 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 
+namespace {
+  QString connectionName() { return QString("db-garsale"); }
+}
+
 namespace garsale {
 
 std::unique_ptr<AbstractSaver> AbstractSaver::makeSaver(Type type)
@@ -33,7 +37,8 @@ QSqlDatabase connectToDb()
     return QSqlDatabase();
   }
 
-  QSqlDatabase db = QSqlDatabase::addDatabase(settings.type());
+  QSqlDatabase db = QSqlDatabase::contains(::connectionName()) ? QSqlDatabase::database(::connectionName())
+                                                               : QSqlDatabase::addDatabase(settings.type(), ::connectionName());
   db.setHostName(settings.host());
   db.setDatabaseName(settings.name());
   db.setUserName(settings.user());

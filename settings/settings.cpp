@@ -45,6 +45,10 @@ QStringList Settings::childKeys(const QString& groupName) const
     result = settings_->childKeys();
     settings_->endGroup();
   }
+
+  for (auto it = result.begin(), end = result.end(); it != end; ++it) {
+    *it = QString("%1/%2").arg(groupName).arg(*it);
+  }
   return result;
 }
 

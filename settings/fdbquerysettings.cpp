@@ -27,6 +27,32 @@ QString FirebirdQuerySettings::query(const QString& key) const
   return value(key).toString();
 }
 
+QString FirebirdQuerySettings::selectMaxSellerIdQuery() const
+{
+  return query(selectMaxSellerIdKey());
+}
+
+QString FirebirdQuerySettings::selectMaxDocumentIdQuery() const
+{
+  return query(selectMaxDocumentIdKey());
+}
+
+QString FirebirdQuerySettings::selectMaxGoodIdQuery() const
+{
+  return query(selectMaxGoodIdKey());
+}
+
+
+QString FirebirdQuerySettings::selectMaxDocContentIdQuery() const
+{
+  return query(selectMaxDocContentIdKey());
+}
+
+QString FirebirdQuerySettings::selectMaxStoreIdQuery() const
+{
+  return query(selectMaxStoreIdKey());
+}
+
 QString FirebirdQuerySettings::selectSellerQuery() const
 {
   return query(selectSellerKey());
@@ -60,6 +86,31 @@ QString FirebirdQuerySettings::insertDocContentQuery() const
 QString FirebirdQuerySettings::insertStoreQuery() const
 {
   return query(insertStoreKey());
+}
+
+QString FirebirdQuerySettings::selectMaxSellerIdKey()
+{
+  return QString("%1/%2").arg(::fdbQueriesKey()).arg("max_seller");
+}
+
+QString FirebirdQuerySettings::selectMaxDocumentIdKey()
+{
+  return QString("%1/%2").arg(::fdbQueriesKey()).arg("max_document");
+}
+
+QString FirebirdQuerySettings::selectMaxGoodIdKey()
+{
+  return QString("%1/%2").arg(::fdbQueriesKey()).arg("max_good");
+}
+
+QString FirebirdQuerySettings::selectMaxDocContentIdKey()
+{
+  return QString("%1/%2").arg(::fdbQueriesKey()).arg("max_doc_content");
+}
+
+QString FirebirdQuerySettings::selectMaxStoreIdKey()
+{
+  return QString("%1/%2").arg(::fdbQueriesKey()).arg("max_store");
 }
 
 QString FirebirdQuerySettings::selectSellerKey()
