@@ -280,130 +280,76 @@ bool FdbSqlSaver::checkGoodExist(QSqlQuery& query, const Good& good) const
 
 bool FdbSqlSaver::saveSeller(QSqlQuery& query, const SellerGoods& sgoods, int sellerid) const
 {
-  int result = 0;
+  query.addBindValue(sellerid);
+  query.addBindValue(sgoods.nickname);
+  query.addBindValue(sgoods.name);
+  query.addBindValue(sgoods.inspector_code);
+  query.addBindValue(sgoods.phone);
+  query.addBindValue(sgoods.email);
+  query.addBindValue(sgoods.id);
+  query.addBindValue(sgoods.payment_to);
+  query.addBindValue(sgoods.payment_kind);
 
-  query.bindValue(":fid", sellerid);
-  query.bindValue(":nickname", sgoods.nickname);
-  query.bindValue(":name", sgoods.name);
-  query.bindValue(":inspector_code", sgoods.inspector_code);
-  query.bindValue(":phone", sgoods.phone);
-  query.bindValue(":email", sgoods.email);
-  query.bindValue(":id", sgoods.id);
-  query.bindValue(":payment_to", sgoods.payment_to);
-  query.bindValue(":payment_kind", sgoods.payment_kind);
-
-  if (execQuery(query) == true) {
-    if (query.first() == true) {
-      result = query.value(0).toInt();
-    }
-    else {
-      qDebug() << QObject::tr(QString("Error save seller to DB. Query: '%1'")
-                              .arg(query.lastQuery())
-                              .toStdString().c_str());
-    }
-
-    if (query.isActive() == true) {
-      query.finish();
-    }
-  }
-
-  return result;
+  bool ok = false;
+  auto queryResult = execQuery(query, &ok);
+  Q_UNUSED(queryResult);
+  return ok;
 }
 
 bool FdbSqlSaver::saveDocument(QSqlQuery& query, const SellerGoods& sgoods, int sellerid, int docid) const
 {
-  int result = 0;
-
   QDateTime now = QDateTime::currentDateTime();
 
-  query.bindValue(":fid", docid);
-  query.bindValue(":dt", now.date().toString("yyyy-MM-dd"));
-  query.bindValue(":tm", now.time().toString("hh:mm:ss"));
-  query.bindValue(":person_id", sellerid);
-  query.bindValue(":goods_sum", sgoods.goods.size());
+  query.addBindValue(docid);
+  query.addBindValue(now.date().toString("yyyy-MM-dd"));
+  query.addBindValue(now.time().toString("hh:mm:ss"));
+  query.addBindValue(sellerid);
+  query.addBindValue(sgoods.goods.size());
 
-  if (execQuery(query) == true) {
-    if (query.first() == true) {
-      result = query.value(0).toInt();
-    }
-    else {
-      qDebug() << QObject::tr(QString("Error save document to DB. Query: '%1'")
-                              .arg(query.lastQuery())
-                              .toStdString().c_str());
-    }
-
-    if (query.isActive() == true) {
-      query.finish();
-    }
-  }
-
-  return result;
+  bool ok = false;
+  auto queryResult = execQuery(query, &ok);
+  Q_UNUSED(queryResult);
+  return ok;
 }
 
 bool FdbSqlSaver::saveGood(QSqlQuery& query, const Good& good, int goodid) const
 {
-  int result = 0;
+  query.addBindValue(goodid);
+  query.addBindValue(good.label);
+  query.addBindValue(good.barcode);
+  query.addBindValue(good.price);
+  query.addBindValue(good.size);
 
-  query.bindValue(":fid", goodid);
-  query.bindValue(":label", good.label);
-  query.bindValue(":barcode", good.barcode);
-  query.bindValue(":price", good.price);
-  query.bindValue(":size", good.size);
-
-  if (execQuery(query) == true) {
-    if (query.first() == true) {
-      result = query.value(0).toInt();
-    }
-    else {
-      qDebug() << QObject::tr(QString("Error save good to DB. Query: '%1'")
-                              .arg(query.lastQuery())
-                              .toStdString().c_str());
-    }
-
-    if (query.isActive() == true) {
-      query.finish();
-    }
-  }
-
-  return result;
+  bool ok = false;
+  auto queryResult = execQuery(query, &ok);
+  Q_UNUSED(queryResult);
+  return ok;
 }
 
 bool FdbSqlSaver::saveDocContent(QSqlQuery& query, const Good& good, int docid, int goodid, int doccontentid) const
 {
-  bool result = false;
+  query.addBindValue(doccontentid);
+  query.addBindValue(docid);
+  query.addBindValue(goodid);
+  query.addBindValue(good.price);
 
-  query.bindValue(":fid", doccontentid);
-  query.bindValue(":doc_id", docid);
-  query.bindValue(":good_id", goodid);
-  query.bindValue(":good_price", good.price);
-
-  if (execQuery(query) == true) {
-    result = true;
-    if (query.isActive() == true) {
-      query.finish();
-    }
-  }
-
-  return result;
+  bool ok = false;
+  auto queryResult = execQuery(query, &ok);
+  Q_UNUSED(queryResult);
+  return ok;
 }
 
 bool FdbSqlSaver::saveStore(QSqlQuery& query, const Good& good, int sellerid, int goodid, int storeid) const
 {
-  bool result = false;
+  query.addBindValue(storeid);
+  query.addBindValue(sellerid);
+  query.addBindValue(goodid);
+  query.addBindValue(good.price);
 
-  query.bindValue(":fid", storeid);
-  query.bindValue(":person_id", sellerid);
-  query.bindValue(":good_id", goodid);
-  query.bindValue(":good_price", good.price);
-
-  if (execQuery(query) == true) {
-    result = true;
-    if (query.isActive() == true) {
-      query.finish();
-    }
-  }
-
-  return result;
+  bool ok = false;
+  auto queryResult = execQuery(query, &ok);
+  Q_UNUSED(queryResult);
+  return ok;
 }
 
 } // garsale
