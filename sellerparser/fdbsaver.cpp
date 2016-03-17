@@ -5,7 +5,9 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QList>
 #include <QMap>
+#include <QPair>
 #include <QString>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -32,40 +34,43 @@ bool FdbSqlSaver::save(const SellerGoods& sgoods)
       if (sellerid < 0) {
         return false;
       }
-      sellerid = saveSeller(queries[FirebirdQuerySettings::insertSellerKey()], sgoods, sellerid+1);
-      if (sellerid < 0) {
-        return false;
-      }
+    }
+
+    if (saveSeller(queries[FirebirdQuerySettings::insertSellerKey()], sgoods, sellerid+1) == false) {
+      return false;
+    }
+
+    sellerid = getMaxId(queries[FirebirdQuerySettings::selectMaxSellerIdKey()]);
+    if (sellerid < 0) {
+      return false;
     }
 
     int docid = getMaxId(queries[FirebirdQuerySettings::selectMaxDocumentIdKey()]);
     if (docid < 0) {
       return false;
     }
-    docid = saveDocument(queries[FirebirdQuerySettings::insertDocumentKey()], sgoods, sellerid, docid+1);
-    if (sellerid == 0) {
+
+    if (saveDocument(queries[FirebirdQuerySettings::insertDocumentKey()], sgoods, sellerid, docid+1) == false) {
+      return false;
+    }
+
+    docid = getMaxId(queries[FirebirdQuerySettings::selectMaxDocumentIdKey()]);
+    if (docid < 0) {
       return false;
     }
 
     int savedCount = 0;
     for (auto it = sgoods.goods.constBegin(), end = sgoods.goods.constEnd(); it != end; ++it) {
-      int goodExists = checkGoodExist(queries[FirebirdQuerySettings::selectGoodKey()], *it);
-      if (goodExists == -1 || goodExists > 0) {
-        qDebug() << QObject::tr(QString("Warning: not saved good %1 %2 %3 %4")
-                                .arg(it->label)
-                                .arg(it->size)
-                                .arg(it->price)
-                                .arg(it->barcode)
-                                .toStdString().c_str());
+      if (checkGoodExist(queries[FirebirdQuerySettings::selectGoodKey()], *it) == false) {
         continue;
       }
 
       int goodid = getMaxId(queries[FirebirdQuerySettings::selectMaxGoodIdKey()]);
       if (goodid < 0) {
-        return false;
+        continue;
       }
-      goodid = saveGood(queries[FirebirdQuerySettings::insertGoodKey()], *it, goodid+1);
-      if (goodid == 0) {
+
+      if (saveGood(queries[FirebirdQuerySettings::insertGoodKey()], *it, goodid+1) == false) {
         qDebug() << QObject::tr(QString("Warning: not saved good %1 %2 %3 %4")
                                 .arg(it->label)
                                 .arg(it->size)
@@ -75,7 +80,16 @@ bool FdbSqlSaver::save(const SellerGoods& sgoods)
         continue;
       }
 
+      goodid = getMaxId(queries[FirebirdQuerySettings::selectMaxGoodIdKey()]);
+      if (goodid < 0) {
+        continue;
+      }
+
       int doccontentid = getMaxId(queries[FirebirdQuerySettings::selectMaxDocContentIdKey()]);
+      if (doccontentid < 0) {
+        continue;
+      }
+
       if (saveDocContent(queries[FirebirdQuerySettings::insertDocContentKey()], *it, docid, goodid, doccontentid+1) == false) {
         qDebug() << QObject::tr(QString("Warning: not saved doc_content %1 %2 %3 %4")
                                 .arg(it->label)
@@ -83,6 +97,11 @@ bool FdbSqlSaver::save(const SellerGoods& sgoods)
                                 .arg(it->price)
                                 .arg(it->barcode)
                                 .toStdString().c_str());
+        continue;
+      }
+
+      doccontentid = getMaxId(queries[FirebirdQuerySettings::selectMaxDocContentIdKey()]);
+      if (doccontentid < 0) {
         continue;
       }
 
@@ -156,37 +175,51 @@ bool FdbSqlSaver::checkExistsOneQuery(const QMap<QString, QSqlQuery>& queries, c
   return false;
 }
 
-bool FdbSqlSaver::execQuery(QSqlQuery &query) const
+QList<FdbSqlSaver::Record> FdbSqlSaver::execQuery(QSqlQuery &query, bool* ok) const
 {
-  bool result = false;
-  if (query.exec() == true) {
-    result = true;
+  if (ok != nullptr) {
+    *ok = false;
   }
-  else {
-    qDebug() << QObject::tr(QString("Execute query '%1' failed: %2")
-                            .arg(query.lastQuery()).arg(query.lastError().text())
+
+  QList<Record> result;
+  if (query.exec() == false) {
+    qDebug() << QObject::tr(QString("Execute query failed: %2")
+                            .arg(query.lastError().text())
                             .toStdString().c_str());
-    if (query.isActive() == true) {
-      query.finish();
-    }
+    return result;
   }
+
+  if (ok != nullptr) {
+    *ok = true;
+  }
+
+  while (query.next() == true) {
+    Record rec;
+    for ( int i = 0, sz = query.record().count(); i < sz; ++i) {
+      rec.append(query.record().field(i).name(),
+                 query.record().field(i).value().toString());
+    }
+    result.append(rec);
+  }
+
+  if (query.isActive() == true) {
+    query.finish();
+  }
+
   return result;
 }
 
 int FdbSqlSaver::getMaxId(QSqlQuery& query) const
 {
   int result = -1;
+  bool ok = false;
 
-  if (execQuery(query) == true) {
-    if (query.first() == true) {
-      result = query.value(0).toInt();
-      qDebug() << "max id = " << result;
-    }
-    else {
-      qDebug() << QObject::tr(QString("Error get last id")
-                              .toStdString().c_str());
-    }
+  auto queryResult = execQuery(query, &ok);
+  if (ok == false) {
+    return result;
   }
+
+  result = queryResult.isEmpty() ? 0 : queryResult.first().values().first().toInt();
 
   return result;
 }
@@ -194,87 +227,75 @@ int FdbSqlSaver::getMaxId(QSqlQuery& query) const
 int FdbSqlSaver::checkSellerExist(QSqlQuery& query, const SellerGoods& sgoods) const
 {
   int result = -1;
+  bool ok = false;
 
-  query.bindValue(":id", sgoods.id);
-
-  if (execQuery(query) == true) {
-    int sz = 0;
-    while (query.next() == true) {
-      ++sz;
-      result = 0;
-      int fid = query.value(0).toInt();
-      QString sellerNickname = query.value(1).toString();
-      qDebug() << "last seller fid" << fid << "name" << sellerNickname;
-      if (sellerNickname == sgoods.nickname) {
-        result = fid;
-      }
-      else {
-        qDebug() << QObject::tr(QString("Error: nickname in DB '%1' not equal '%2'")
-                                .arg(sellerNickname).arg(sgoods.nickname)
-                                .toStdString().c_str());
-      }
-    }
-
-    if (sz > 1) {
-      qDebug() << QObject::tr(QString("Error: exist %1 records with seller id = %2")
-                              .arg(sz).arg(sgoods.id)
-                              .toStdString().c_str());
-      result = sz;
-    }
-    else if (sz == 0) {
-      qDebug() << QObject::tr(QString("Error: not result of exec query: %1")
-                              .arg(query.lastError().text())
-                              .toStdString().c_str());
-    }
+  query.addBindValue(sgoods.id);
+  auto queryResult = execQuery(query, &ok);
+  if (ok == false) {
+    return result;
   }
 
-  if (query.isActive() == true) {
-    query.finish();
+  int sz = queryResult.size();
+  if (sz > 1) {
+    QStringList idlist;
+    idlist.reserve(sz);
+    for (auto it = queryResult.constBegin(), end = queryResult.constEnd(); it != end; ++it) {
+      idlist.append(it.values().first());
+    }
+    qDebug() << QObject::tr(QString("Error: exist %1 records with seller id = %2: %3")
+                            .arg(sz).arg(sgoods.id)
+                            .arg(idlist.join(", "))
+                            .toStdString().c_str());
+  }
+  else if (sz == 0) {
+    result = 0;
+  }
+  else {
+    int fid = queryResult.first().values().first().toInt();
+    QString sellerNickname = queryResult.first().values().at(1).toInt();
+    if (sellerNickname == sgoods.nickname) {
+      result = fid;
+    }
+    else {
+      qDebug() << QObject::tr(QString("Error: nickname in DB '%1' not equal '%2'")
+                              .arg(sellerNickname).arg(sgoods.nickname)
+                              .toStdString().c_str());
+    }
   }
   return result;
 }
 
-int FdbSqlSaver::checkGoodExist(QSqlQuery& query, const Good& good) const
+bool FdbSqlSaver::checkGoodExist(QSqlQuery& query, const Good& good) const
 {
-  int result = -1;
+  bool ok = false;
 
-  query.bindValue(":barcode", good.barcode);
-
-  if (execQuery(query) == true) {
-    if (query.first() == true) {
-      result = 0;
-      int sz = 1;
-      qDebug() << QObject::tr(QString("Warning: exist records with barcode = %2")
-                              .arg(good.barcode)
-                              .toStdString().c_str());
-      qDebug() << QObject::tr(QString("%1 %2 %3 %4 %5")
-                              .arg(query.value(0).toString())
-                              .arg(query.value(1).toString())
-                              .arg(query.value(2).toString())
-                              .arg(query.value(3).toString())
-                              .arg(query.value(4).toString())
-                              .toStdString().c_str());
-      while (query.next() == true) {
-        ++sz;
-        qDebug() << QObject::tr(QString("%1 %2 %3 %4 %5")
-                                .arg(query.value(0).toString())
-                                .arg(query.value(1).toString())
-                                .arg(query.value(2).toString())
-                                .arg(query.value(3).toString())
-                                .arg(query.value(4).toString())
-                                .toStdString().c_str());
-      }
-      result = sz;
-    }
-
-    if (query.isActive() == true) {
-      query.finish();
-    }
+  query.addBindValue(good.barcode);
+  auto queryResult = execQuery(query, &ok);
+  if (ok == false) {
+    return false;
   }
-  return result;
+
+  if (queryResult.isEmpty() == true) {
+    return true;
+  }
+
+  qDebug() << QObject::tr(QString("Warning: exist records with barcode = %2")
+                          .arg(good.barcode)
+                          .toStdString().c_str());
+  for (auto it = queryResult.constBegin(), end = queryResult.constEnd(); it != end; ++it) {
+    const Record& rec = *it;
+    qDebug() << QObject::tr(QString("%1 %2 %3 %4 %5")
+                            .arg(rec.values().at(0))
+                            .arg(rec.values().at(1))
+                            .arg(rec.values().at(2))
+                            .arg(rec.values().at(3))
+                            .arg(rec.values().at(4))
+                            .toStdString().c_str());
+  }
+  return false;
 }
 
-int FdbSqlSaver::saveSeller(QSqlQuery& query, const SellerGoods& sgoods, int sellerid) const
+bool FdbSqlSaver::saveSeller(QSqlQuery& query, const SellerGoods& sgoods, int sellerid) const
 {
   int result = 0;
 
@@ -306,7 +327,7 @@ int FdbSqlSaver::saveSeller(QSqlQuery& query, const SellerGoods& sgoods, int sel
   return result;
 }
 
-int FdbSqlSaver::saveDocument(QSqlQuery& query, const SellerGoods& sgoods, int sellerid, int docid) const
+bool FdbSqlSaver::saveDocument(QSqlQuery& query, const SellerGoods& sgoods, int sellerid, int docid) const
 {
   int result = 0;
 
@@ -336,7 +357,7 @@ int FdbSqlSaver::saveDocument(QSqlQuery& query, const SellerGoods& sgoods, int s
   return result;
 }
 
-int FdbSqlSaver::saveGood(QSqlQuery& query, const Good& good, int goodid) const
+bool FdbSqlSaver::saveGood(QSqlQuery& query, const Good& good, int goodid) const
 {
   int result = 0;
 
