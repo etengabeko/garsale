@@ -88,7 +88,7 @@ const Good MoscowCsvParser::parseOneGood(const QString& str) const
   QString barcode = splitOneField(goodFields, 5);
   if (barcode.startsWith('*') == true &&
       barcode.endsWith('*') == true) {
-    barcode = barcode.mid(1, barcode.length()-1);
+    barcode = barcode.mid(1, barcode.length()-2);
   }
   g.barcode = barcode;
   return g;
